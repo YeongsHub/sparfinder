@@ -177,18 +177,49 @@ class OfferModel {
     final now = DateTime.now();
     final weekEnd = now.add(const Duration(days: 7));
 
+    // 같은 제품을 여러 마켓이 판매하는 케이스 포함
     return [
+      // Butter: ALDI(최저) < LIDL < REWE
       OfferModel(id: 'w1', productName: 'Butter', brand: 'Landfein', price: 1.49, originalPrice: 2.29, supermarketName: 'ALDI Süd', category: 'Milchprodukte', validFrom: now, validUntil: weekEnd, unit: '250 g'),
+      OfferModel(id: 'w1b', productName: 'Butter', brand: 'Milbona', price: 1.69, originalPrice: 2.29, supermarketName: 'LIDL', category: 'Milchprodukte', validFrom: now, validUntil: weekEnd, unit: '250 g'),
+      OfferModel(id: 'w1c', productName: 'Butter', brand: 'REWE Bio', price: 1.89, originalPrice: 2.49, supermarketName: 'REWE', category: 'Milchprodukte', validFrom: now, validUntil: weekEnd, unit: '250 g'),
+
+      // Eier: 단독
       OfferModel(id: 'w2', productName: 'Eier Freilandhaltung', brand: null, price: 1.99, originalPrice: 2.79, supermarketName: 'LIDL', category: 'Eier', validFrom: now, validUntil: weekEnd, unit: '10 Stück'),
+
+      // Hähnchenbrust: REWE(최저) < Kaufland
       OfferModel(id: 'w3', productName: 'Hähnchenbrust', brand: null, price: 3.49, originalPrice: 5.99, supermarketName: 'REWE', category: 'Fleisch', validFrom: now, validUntil: weekEnd, unit: '500 g'),
+      OfferModel(id: 'w3b', productName: 'Hähnchenbrust', brand: null, price: 3.99, originalPrice: 5.99, supermarketName: 'Kaufland', category: 'Fleisch', validFrom: now, validUntil: weekEnd, unit: '500 g'),
+
+      // Gouda: 단독
       OfferModel(id: 'w4', productName: 'Gouda Scheiben', brand: 'Milkana', price: 1.79, originalPrice: 2.49, supermarketName: 'Kaufland', category: 'Käse', validFrom: now, validUntil: weekEnd, unit: '400 g'),
-      OfferModel(id: 'w5', productName: 'Bananen', brand: null, price: 1.29, originalPrice: 1.79, supermarketName: 'Penny', category: 'Obst & Gemüse', validFrom: now, validUntil: weekEnd, unit: '1 kg'),
+
+      // Bananen: ALDI(최저) < Penny < Netto
+      OfferModel(id: 'w5', productName: 'Bananen', brand: null, price: 1.09, originalPrice: 1.79, supermarketName: 'ALDI Süd', category: 'Obst & Gemüse', validFrom: now, validUntil: weekEnd, unit: '1 kg'),
+      OfferModel(id: 'w5b', productName: 'Bananen', brand: null, price: 1.29, originalPrice: 1.79, supermarketName: 'Penny', category: 'Obst & Gemüse', validFrom: now, validUntil: weekEnd, unit: '1 kg'),
+      OfferModel(id: 'w5c', productName: 'Bananen', brand: null, price: 1.49, originalPrice: 1.99, supermarketName: 'Netto', category: 'Obst & Gemüse', validFrom: now, validUntil: weekEnd, unit: '1 kg'),
+
+      // Toastbrot: 단독
       OfferModel(id: 'w6', productName: 'Toastbrot', brand: 'Lieken Urkorn', price: 0.99, originalPrice: 1.49, supermarketName: 'ALDI Nord', category: 'Brot & Backwaren', validFrom: now, validUntil: weekEnd, unit: '500 g'),
-      OfferModel(id: 'w7', productName: 'Cola', brand: 'Coca-Cola', price: 0.79, originalPrice: 1.29, supermarketName: 'LIDL', category: 'Getränke', validFrom: now, validUntil: weekEnd, unit: '1,5 l'),
+
+      // Cola: LIDL(최저) < Kaufland
+      OfferModel(id: 'w7', productName: 'Coca-Cola', brand: 'Coca-Cola', price: 0.79, originalPrice: 1.29, supermarketName: 'LIDL', category: 'Getränke', validFrom: now, validUntil: weekEnd, unit: '1,5 l'),
+      OfferModel(id: 'w7b', productName: 'Coca-Cola', brand: 'Coca-Cola', price: 0.99, originalPrice: 1.29, supermarketName: 'Kaufland', category: 'Getränke', validFrom: now, validUntil: weekEnd, unit: '1,5 l'),
+
+      // Joghurt: 단독
       OfferModel(id: 'w8', productName: 'Joghurt', brand: 'Activia', price: 2.49, originalPrice: 3.29, supermarketName: 'REWE', category: 'Milchprodukte', validFrom: now, validUntil: weekEnd, unit: '4x125 g'),
+
+      // Lachs: Kaufland(최저) < REWE
       OfferModel(id: 'w9', productName: 'Lachs', brand: null, price: 4.99, originalPrice: 7.99, supermarketName: 'Kaufland', category: 'Fisch', validFrom: now, validUntil: weekEnd, unit: '400 g'),
+      OfferModel(id: 'w9b', productName: 'Lachs', brand: null, price: 5.49, originalPrice: 7.99, supermarketName: 'REWE', category: 'Fisch', validFrom: now, validUntil: weekEnd, unit: '400 g'),
+
+      // Apfel: 단독
       OfferModel(id: 'w10', productName: 'Apfel Gala', brand: null, price: 1.49, originalPrice: 1.99, supermarketName: 'Netto', category: 'Obst & Gemüse', validFrom: now, validUntil: weekEnd, unit: '1 kg'),
+
+      // Sonnenblumenöl: 단독
       OfferModel(id: 'w11', productName: 'Öl Sonnenblumenöl', brand: 'Brat-Fix', price: 1.29, originalPrice: 2.19, supermarketName: 'ALDI Süd', category: 'Öl & Essig', validFrom: now, validUntil: weekEnd, unit: '1 l'),
+
+      // Müsli: 단독
       OfferModel(id: 'w12', productName: 'Müsli', brand: 'Dr. Oetker', price: 1.99, originalPrice: 2.99, supermarketName: 'REWE', category: 'Frühstück', validFrom: now, validUntil: weekEnd, unit: '500 g'),
     ];
   }

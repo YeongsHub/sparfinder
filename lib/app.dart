@@ -1,0 +1,88 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/theme/app_theme.dart';
+import 'domain/entities/offer.dart';
+import 'presentation/screens/home/home_screen.dart';
+import 'presentation/screens/search/search_screen.dart';
+import 'presentation/screens/product_detail/product_detail_screen.dart';
+import 'presentation/screens/saved/saved_screen.dart';
+import 'presentation/screens/settings/settings_screen.dart';
+
+class SparFinderApp extends StatelessWidget {
+  const SparFinderApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'SparFinder',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      home: const _MainShell(),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/product':
+            final offer = settings.arguments as Offer;
+            return MaterialPageRoute(
+              builder: (_) => ProductDetailScreen(offer: offer),
+            );
+          case '/settings':
+            return MaterialPageRoute(
+              builder: (_) => const SettingsScreen(),
+            );
+          default:
+            return null;
+        }
+      },
+    );
+  }
+}
+
+class _MainShell extends ConsumerStatefulWidget {
+  const _MainShell();
+
+  @override
+  ConsumerState<_MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends ConsumerState<_MainShell> {
+  int _selectedIndex = 0;
+
+  final _pages = const [
+    HomeScreen(),
+    SearchScreen(),
+    SavedScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (i) => setState(() => _selectedIndex = i),
+        backgroundColor: Colors.white,
+        indicatorColor: AppTheme.primaryGreen.withValues(alpha: 0.15),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home, color: AppTheme.primaryGreen),
+            label: 'Angebote',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.search_outlined),
+            selectedIcon: Icon(Icons.search, color: AppTheme.primaryGreen),
+            label: 'Vergleich',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bookmark_border),
+            selectedIcon: Icon(Icons.bookmark, color: AppTheme.primaryGreen),
+            label: 'Merkliste',
+          ),
+        ],
+      ),
+    );
+  }
+}

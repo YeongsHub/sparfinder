@@ -21,6 +21,67 @@ class HomeScreen extends ConsumerWidget {
     'Frühstück',
   ];
 
+  void _showZipDialog(BuildContext context, WidgetRef ref, String currentZip) {
+    final controller = TextEditingController(text: currentZip);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Postleitzahl ändern'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          maxLength: 5,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: 'z.B. 10115',
+            prefixIcon: Icon(Icons.location_on),
+            counterText: '',
+          ),
+          onSubmitted: (v) {
+            _saveZip(context, ref, v);
+            Navigator.of(ctx).pop();
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Abbrechen'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _saveZip(context, ref, controller.text);
+              Navigator.of(ctx).pop();
+            },
+            child: const Text('Speichern'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _saveZip(BuildContext context, WidgetRef ref, String zip) {
+    final trimmed = zip.trim();
+    if (trimmed.length != 5 || int.tryParse(trimmed) == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Bitte eine gültige 5-stellige PLZ eingeben'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    ref.read(zipCodeProvider.notifier).state = trimmed;
+    final prefs = ref.read(sharedPreferencesProvider);
+    prefs.setString('zipCode', trimmed);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Angebote für PLZ $trimmed werden geladen...'),
+        backgroundColor: AppTheme.primaryGreen,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final zipCode = ref.watch(zipCodeProvider);
@@ -47,17 +108,26 @@ class HomeScreen extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on,
-                        color: Colors.white70, size: 14),
-                    const SizedBox(width: 4),
-                    Text(
-                      'PLZ $zipCode',
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 13),
-                    ),
-                  ],
+                // PLZ 클릭 가능한 버튼
+                GestureDetector(
+                  onTap: () => _showZipDialog(context, ref, zipCode),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.location_on,
+                          color: Colors.white70, size: 14),
+                      const SizedBox(width: 4),
+                      Text(
+                        'PLZ $zipCode',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.edit, color: Colors.white54, size: 12),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -82,15 +152,31 @@ class HomeScreen extends ConsumerWidget {
           ),
 
           // 이번 주 특가 헤더
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
-              child: Text(
-                'Diese Woche im Angebot',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+          weeklyDeals.when(
+            loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+            error: (error, stack) => const SliverToBoxAdapter(child: SizedBox.shrink()),
+            data: (deals) => SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                child: Row(
+                  children: [
+                    const Text(
+                      'Diese Woche im Angebot',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${deals.length} Produkte',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -133,11 +219,13 @@ class HomeScreen extends ConsumerWidget {
                 sliver: SliverGrid(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      final offer = deals[index];
+                      final homeDeal = deals[index];
+                      final offer = homeDeal.cheapest;
                       final savedOffers = ref.watch(savedOffersProvider);
                       final isSaved = savedOffers.contains(offer.id);
                       return OfferCard(
                         offer: offer,
+                        storeCount: homeDeal.storeCount,
                         isSaved: isSaved,
                         onTap: () => Navigator.of(context).pushNamed(
                           '/product',
@@ -153,7 +241,7 @@ class HomeScreen extends ConsumerWidget {
                   gridDelegate:
                       const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.72,
+                    childAspectRatio: 0.70,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                   ),
@@ -187,7 +275,7 @@ class _CategoryFilter extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final cat = categories[index];
           final isSelected = cat == selected;

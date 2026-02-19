@@ -43,3 +43,29 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# IDE / Editor
+.idea/
+*.iml
+.vscode/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Flutter generated / cache
+.flutter-plugins
+.flutter-plugins-dependencies
+.dart_tool/
+.packages
+pubspec.lock
+
+# Build outputs
+/build/
+**/generated_plugin_registrant.dart
+
+# Credentials / secrets
+*.env
+*.env.*
+google-services.json
+GoogleService-Info.plist

@@ -8,6 +8,7 @@ class OfferCard extends StatelessWidget {
   final Offer offer;
   final bool isCheapest;
   final bool isSaved;
+  final int storeCount; // 같은 제품을 세일하는 마켓 수
   final VoidCallback? onTap;
   final VoidCallback? onSave;
 
@@ -16,6 +17,7 @@ class OfferCard extends StatelessWidget {
     required this.offer,
     this.isCheapest = false,
     this.isSaved = false,
+    this.storeCount = 1,
     this.onTap,
     this.onSave,
   });
@@ -168,6 +170,35 @@ class OfferCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  // 여러 마켓 비교 배지
+                  if (storeCount > 1) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.blue[200]!),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.compare_arrows,
+                              size: 11, color: Colors.blue[600]),
+                          const SizedBox(width: 3),
+                          Text(
+                            '$storeCount Märkte verglichen',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.blue[700],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -185,7 +216,7 @@ class OfferCard extends StatelessWidget {
         height: 100,
         width: double.infinity,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _placeholder(),
+        errorBuilder: (context, error, stackTrace) => _placeholder(),
       );
     }
     return _placeholder();

@@ -63,7 +63,7 @@ class MarktguruRemoteSource {
         queryParameters: {
           'zipCode': zipCode,
           'limit': limit,
-          if (category != null) 'category': category,
+          'category': category,
         },
         options: Options(headers: ApiConstants.marktguruHeaders),
       );
