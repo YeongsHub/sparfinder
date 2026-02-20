@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/price_formatter.dart';
 import '../../widgets/price_comparison_row.dart';
+import '../../widgets/ad_banner.dart';
 import 'search_providers.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -124,20 +125,52 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             spacing: 8,
             runSpacing: 8,
             children: _suggestions.map((s) {
+              final color = _suggestionColor(s);
               return ActionChip(
-                label: Text(s),
+                label: Text(
+                  s,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
+                avatar: Icon(_suggestionIcon(s), size: 16, color: color),
                 onPressed: () {
                   _controller.text = s;
                   _search(s);
                 },
-                backgroundColor: Colors.white,
-                side: BorderSide(color: Colors.grey[300]!),
+                backgroundColor: color.withValues(alpha: 0.1),
+                side: BorderSide(color: color.withValues(alpha: 0.3)),
               );
             }).toList(),
           ),
         ],
       ),
     );
+  }
+
+  Color _suggestionColor(String keyword) {
+    final k = keyword.toLowerCase();
+    if (k == 'milch' || k == 'butter' || k == 'käse' || k == 'joghurt') return Colors.blue;
+    if (k == 'eier') return Colors.amber[700]!;
+    if (k == 'brot') return Colors.orange[700]!;
+    if (k == 'hähnchen') return Colors.red[600]!;
+    if (k == 'lachs') return Colors.pink[600]!;
+    if (k == 'bananen') return Colors.green[600]!;
+    if (k == 'cola') return Colors.brown[600]!;
+    return Colors.grey[600]!;
+  }
+
+  IconData _suggestionIcon(String keyword) {
+    final k = keyword.toLowerCase();
+    if (k == 'milch' || k == 'butter' || k == 'käse' || k == 'joghurt') return Icons.egg_outlined;
+    if (k == 'eier') return Icons.egg;
+    if (k == 'brot') return Icons.bakery_dining;
+    if (k == 'hähnchen' || k == 'lachs') return Icons.restaurant;
+    if (k == 'bananen') return Icons.eco;
+    if (k == 'cola') return Icons.local_drink;
+    return Icons.search;
   }
 
   Widget _buildNoResults(String query) {
@@ -223,7 +256,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         ),
         const SizedBox(height: 8),
 
-        // 가격 비교 리스트
+        // 가�� 비교 리스트
         ...offers.asMap().entries.map((entry) {
           final index = entry.key;
           final offer = entry.value;
@@ -239,6 +272,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
           );
         }),
+
+        // 광고 배너 — 결과 목록 ��단
+        const SizedBox(height: 12),
+        const AdBannerWidget(height: 60),
+        const SizedBox(height: 16),
       ],
     );
   }

@@ -32,14 +32,18 @@ class ProductDetailScreen extends ConsumerWidget {
             backgroundColor: AppTheme.primaryGreen,
             flexibleSpace: FlexibleSpaceBar(
               background: offer.imageUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: offer.imageUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[200],
-                        child: const Center(child: CircularProgressIndicator()),
+                  ? Container(
+                      color: Colors.grey[100],
+                      padding: const EdgeInsets.all(24),
+                      child: CachedNetworkImage(
+                        imageUrl: offer.imageUrl!,
+                        fit: BoxFit.contain,
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        errorWidget: (context, url, error) =>
+                            _imagePlaceholder(),
                       ),
-                      errorWidget: (context, url, error) => _imagePlaceholder(),
                     )
                   : _imagePlaceholder(),
             ),
@@ -74,7 +78,7 @@ class ProductDetailScreen extends ConsumerWidget {
                   Text(
                     offer.productName,
                     style: const TextStyle(
-                      fontSize: 24,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textPrimary,
                     ),
@@ -200,7 +204,7 @@ class _CurrentOfferCard extends StatelessWidget {
     final info = SupermarketConstants.getInfo(offer.supermarketName);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppTheme.primaryGreen, AppTheme.lightGreen],

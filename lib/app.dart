@@ -14,7 +14,7 @@ class SparFinderApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SparFinder',
+      title: 'AngebotsFuchs',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const _MainShell(),

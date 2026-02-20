@@ -250,24 +250,29 @@ class OfferCard extends StatelessWidget {
   Widget _buildImage() {
     final imageUrl = offer.imageUrl;
     if (imageUrl != null && imageUrl.isNotEmpty) {
-      return CachedNetworkImage(
-        imageUrl: imageUrl,
-        height: 100,
+      return Container(
+        height: 130,
         width: double.infinity,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Container(
-          height: 100,
-          width: double.infinity,
-          color: Colors.grey[100],
-          child: const Center(
+        color: Colors.grey[100],
+        padding: const EdgeInsets.all(10),
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          fit: BoxFit.contain,
+          placeholder: (context, url) => const Center(
             child: SizedBox(
               width: 24,
               height: 24,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
           ),
+          errorWidget: (context, url, error) => Center(
+            child: Icon(
+              _categoryIcon(),
+              size: 40,
+              color: Colors.grey[300],
+            ),
+          ),
         ),
-        errorWidget: (context, url, error) => _placeholder(),
       );
     }
     return _placeholder();
@@ -275,7 +280,7 @@ class OfferCard extends StatelessWidget {
 
   Widget _placeholder() {
     return Container(
-      height: 100,
+      height: 130,
       width: double.infinity,
       color: Colors.grey[100],
       child: Center(

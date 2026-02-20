@@ -70,3 +70,8 @@ pubspec.lock
 google-services.json
 GoogleService-Info.plist
 lib/core/constants/secrets.dart
+
+# Android signing
+android/key.properties
+android/app/*.jks
+android/app/*.keystore

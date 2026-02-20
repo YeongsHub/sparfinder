@@ -1,5 +1,5 @@
 name: sparfinder
-description: "독일 슈퍼마켓 주간 세일 가격 비교 앱"
+description: "AngebotsFuchs - Wöchentliche Angebote aller deutschen Supermärkte im Vergleich"
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -11,18 +11,11 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.8
-
   # State management
   flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.3.5
 
   # HTTP
   dio: ^5.8.0+1
-  pretty_dio_logger: ^1.4.0
-
-  # Navigation
-  go_router: ^14.8.1
 
   # Image caching
   cached_network_image: ^3.4.1
@@ -30,21 +23,26 @@ dependencies:
   # Local storage
   shared_preferences: ^2.3.5
 
-  # Location
-  geolocator: ^13.0.2
-  geocoding: ^3.0.0
-
-  # UI utilities
-  flutter_svg: ^2.0.17
-  intl: ^0.20.2
+  # Open URLs (privacy policy)
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/angebotsfuchs.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icon/angebotsfuchs.png"
+  min_sdk_android: 21
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
     - assets/logos/
+    - assets/icon/

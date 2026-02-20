@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../core/theme/app_theme.dart';
 
@@ -163,6 +164,47 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           const SizedBox(height: 24),
 
+          // 법적 정보
+          const Text(
+            'Rechtliches',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textSecondary,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.privacy_tip_outlined,
+                      color: AppTheme.primaryGreen),
+                  title: const Text('Datenschutzerklärung'),
+                  trailing: const Icon(Icons.open_in_new, size: 16),
+                  onTap: () => launchUrl(
+                    Uri.parse('https://angebotsfuchs.de/datenschutz'),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.article_outlined,
+                      color: AppTheme.primaryGreen),
+                  title: const Text('Nutzungsbedingungen'),
+                  trailing: const Icon(Icons.open_in_new, size: 16),
+                  onTap: () => launchUrl(
+                    Uri.parse('https://angebotsfuchs.de/nutzungsbedingungen'),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
           // 앱 정보
           const Text(
             'Über die App',
@@ -181,7 +223,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'SparFinder',
+                    'AngebotsFuchs',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -194,7 +236,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'SparFinder vergleicht Preise von ALDI, LIDL, REWE, Kaufland, Penny, Netto und vielen weiteren Supermärkten in Deutschland.',
+                    'AngebotsFuchs vergleicht Preise von ALDI, LIDL, REWE, Kaufland, Penny, Netto und vielen weiteren Supermärkten in Deutschland.',
                     style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
                   ),
                 ],

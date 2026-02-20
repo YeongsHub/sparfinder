@@ -33,6 +33,7 @@ class PriceComparisonRow extends StatelessWidget {
             : Border.all(color: Colors.grey[200]!),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // 순위
           Container(
@@ -54,38 +55,72 @@ class PriceComparisonRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          // 슈퍼마켓 정보
+          // 슈퍼마켓 + 상품 정보
           Expanded(
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(info.emoji, style: const TextStyle(fontSize: 20)),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                // 슈퍼마켓명 + 카테고리 태그
+                Row(
                   children: [
-                    Text(
-                      offer.supermarketName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                        color: isCheapest
-                            ? AppTheme.primaryGreen
-                            : AppTheme.textPrimary,
+                    Text(info.emoji, style: const TextStyle(fontSize: 18)),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        offer.supermarketName,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: isCheapest
+                              ? AppTheme.primaryGreen
+                              : Color(info.color),
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (offer.unit != null)
-                      Text(
-                        offer.unit!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.textSecondary,
+                    if (offer.category != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: _categoryColor(offer.category!)
+                              .withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          _categoryShort(offer.category!),
+                          style: TextStyle(
+                            fontSize: 9,
+                            color: _categoryColor(offer.category!),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                   ],
                 ),
+                const SizedBox(height: 2),
+                // 상품명
+                Text(
+                  offer.displayName,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (offer.unit != null)
+                  Text(
+                    offer.unit!,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           // 가격
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -95,7 +130,9 @@ class PriceComparisonRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: isCheapest ? AppTheme.primaryGreen : AppTheme.textPrimary,
+                  color: isCheapest
+                      ? AppTheme.primaryGreen
+                      : AppTheme.textPrimary,
                 ),
               ),
               if (offer.originalPrice != null)
@@ -116,5 +153,38 @@ class PriceComparisonRow extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Color _categoryColor(String category) {
+    final cat = category.toLowerCase();
+    if (cat.contains('milch') || cat.contains('käse') || cat.contains('joghurt')) return Colors.blue;
+    if (cat.contains('fleisch') || cat.contains('wurst') || cat.contains('fisch')) return Colors.red[700]!;
+    if (cat.contains('obst') || cat.contains('gemüse')) return Colors.green[700]!;
+    if (cat.contains('getränk') || cat.contains('bier') || cat.contains('wein')) return Colors.indigo;
+    if (cat.contains('brot') || cat.contains('back')) return Colors.orange[700]!;
+    if (cat.contains('tiefkühl')) return Colors.cyan[700]!;
+    if (cat.contains('süß') || cat.contains('schoko') || cat.contains('chips')) return Colors.pink[600]!;
+    return Colors.grey[600]!;
+  }
+
+  String _categoryShort(String category) {
+    final cat = category.toLowerCase();
+    if (cat.contains('milch')) return 'Milch';
+    if (cat.contains('käse')) return 'Käse';
+    if (cat.contains('joghurt')) return 'Joghurt';
+    if (cat.contains('fleisch')) return 'Fleisch';
+    if (cat.contains('wurst') || cat.contains('schinken')) return 'Wurst';
+    if (cat.contains('fisch') || cat.contains('lachs')) return 'Fisch';
+    if (cat.contains('obst')) return 'Obst';
+    if (cat.contains('gemüse')) return 'Gemüse';
+    if (cat.contains('getränk')) return 'Getränke';
+    if (cat.contains('bier')) return 'Bier';
+    if (cat.contains('wein')) return 'Wein';
+    if (cat.contains('brot') || cat.contains('back')) return 'Brot';
+    if (cat.contains('tiefkühl')) return 'TK';
+    if (cat.contains('schoko')) return 'Süßes';
+    if (cat.contains('eier')) return 'Eier';
+    if (cat.contains('kaffee')) return 'Kaffee';
+    return category.length > 8 ? '${category.substring(0, 8)}…' : category;
   }
 }

@@ -4,6 +4,7 @@ import '../../../core/providers/app_providers.dart';
 import '../../../core/constants/supermarket_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../widgets/offer_card.dart';
+import '../../widgets/ad_banner.dart';
 import 'home_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -92,6 +93,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
+      bottomNavigationBar: const AdBannerWidget(height: 60),
       body: CustomScrollView(
         slivers: [
           // AppBar
@@ -103,7 +105,7 @@ class HomeScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'SparFinder 🛒',
+                  'AngebotsFuchs 🦊',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -235,37 +237,42 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 );
               }
+              final savedOffers = ref.watch(savedOffersProvider);
+
+              // 2열 카드 행 + 광고 행 혼합 리스트 구성
+              // 카드 3행(6개)마다 광고 1개 삽입
+              final List<Widget> rows = [];
+              int cardRowCount = 0;
+              for (int i = 0; i < deals.length; i += 2) {
+                final left = deals[i];
+                final right = i + 1 < deals.length ? deals[i + 1] : null;
+
+                rows.add(_CardRow(
+                  left: left,
+                  right: right,
+                  savedOffers: savedOffers,
+                  onTap: (offer) => Navigator.of(context).pushNamed(
+                    '/product',
+                    arguments: offer,
+                  ),
+                  onSave: (id) =>
+                      ref.read(savedOffersProvider.notifier).toggle(id),
+                ));
+                cardRowCount++;
+
+                // 3행마다 광고 삽입 (마지막 행 제외)
+                if (cardRowCount % 3 == 0 && i + 2 < deals.length) {
+                  rows.add(const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4),
+                    child: AdBannerWidget(height: 60),
+                  ));
+                }
+              }
+
               return SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                sliver: SliverGrid(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final homeDeal = deals[index];
-                      final offer = homeDeal.cheapest;
-                      final savedOffers = ref.watch(savedOffersProvider);
-                      final isSaved = savedOffers.contains(offer.id);
-                      return OfferCard(
-                        offer: offer,
-                        storeCount: homeDeal.storeCount,
-                        isSaved: isSaved,
-                        onTap: () => Navigator.of(context).pushNamed(
-                          '/product',
-                          arguments: offer,
-                        ),
-                        onSave: () => ref
-                            .read(savedOffersProvider.notifier)
-                            .toggle(offer.id),
-                      );
-                    },
-                    childCount: deals.length,
-                  ),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.57,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate(rows),
                 ),
               );
             },
@@ -316,6 +323,64 @@ class _CategoryFilter extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+/// 카드 2개를 한 행으로 표시하는 위젯
+class _CardRow extends StatelessWidget {
+  final HomeOffer left;
+  final HomeOffer? right;
+  final List<String> savedOffers;
+  final void Function(dynamic offer) onTap;
+  final void Function(String id) onSave;
+
+  const _CardRow({
+    required this.left,
+    required this.right,
+    required this.savedOffers,
+    required this.onTap,
+    required this.onSave,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardWidth = (constraints.maxWidth - 8) / 2;
+        final cardHeight = cardWidth / 0.57;
+        return SizedBox(
+          height: cardHeight,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: cardWidth,
+                child: OfferCard(
+                  offer: left.cheapest,
+                  storeCount: left.storeCount,
+                  isSaved: savedOffers.contains(left.cheapest.id),
+                  onTap: () => onTap(left.cheapest),
+                  onSave: () => onSave(left.cheapest.id),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: cardWidth,
+                child: right != null
+                    ? OfferCard(
+                        offer: right!.cheapest,
+                        storeCount: right!.storeCount,
+                        isSaved: savedOffers.contains(right!.cheapest.id),
+                        onTap: () => onTap(right!.cheapest),
+                        onSave: () => onSave(right!.cheapest.id),
+                      )
+                    : const SizedBox(),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
