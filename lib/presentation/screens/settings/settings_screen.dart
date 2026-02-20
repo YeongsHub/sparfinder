@@ -184,7 +184,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: const Text('Datenschutzerklärung'),
                   trailing: const Icon(Icons.open_in_new, size: 16),
                   onTap: () => launchUrl(
-                    Uri.parse('https://angebotsfuchs.de/datenschutz'),
+                    Uri.parse('https://yeongsHub.github.io/sparfinder/datenschutz'),
                     mode: LaunchMode.externalApplication,
                   ),
                 ),
@@ -195,7 +195,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: const Text('Nutzungsbedingungen'),
                   trailing: const Icon(Icons.open_in_new, size: 16),
                   onTap: () => launchUrl(
-                    Uri.parse('https://angebotsfuchs.de/nutzungsbedingungen'),
+                    Uri.parse('https://yeongsHub.github.io/sparfinder/nutzungsbedingungen'),
                     mode: LaunchMode.externalApplication,
                   ),
                 ),
