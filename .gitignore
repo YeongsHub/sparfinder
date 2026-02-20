@@ -69,3 +69,4 @@ pubspec.lock
 *.env.*
 google-services.json
 GoogleService-Info.plist
+lib/core/constants/secrets.dart

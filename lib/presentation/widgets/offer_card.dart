@@ -200,6 +200,19 @@ class OfferCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                  // 유효기간
+                  if (offer.validUntil != null) ...[
+                    const SizedBox(height: 5),
+                    Text(
+                      'Gültig bis ${_formatDate(offer.validUntil!)}',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: _isExpiringSoon(offer.validUntil!)
+                            ? Colors.orange[700]
+                            : AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -248,6 +261,16 @@ class OfferCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    return '$d.$m.';
+  }
+
+  bool _isExpiringSoon(DateTime date) {
+    return date.difference(DateTime.now()).inDays <= 2;
   }
 
   IconData _categoryIcon() {

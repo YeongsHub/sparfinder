@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/app_providers.dart';
+import '../../../core/constants/supermarket_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../widgets/offer_card.dart';
 import 'home_providers.dart';
@@ -19,6 +20,17 @@ class HomeScreen extends ConsumerWidget {
     'Eier',
     'Käse',
     'Frühstück',
+  ];
+
+  static const _supermarkets = [
+    'Alle',
+    'ALDI',
+    'LIDL',
+    'REWE',
+    'Kaufland',
+    'Penny',
+    'Netto',
+    'EDEKA',
   ];
 
   void _showZipDialog(BuildContext context, WidgetRef ref, String currentZip) {
@@ -86,6 +98,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final zipCode = ref.watch(zipCodeProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
+    final selectedSupermarket = ref.watch(selectedSupermarketProvider);
     final weeklyDeals = ref.watch(weeklyDealsProvider);
 
     return Scaffold(
@@ -108,7 +121,6 @@ class HomeScreen extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                // PLZ 클릭 가능한 버튼
                 GestureDetector(
                   onTap: () => _showZipDialog(context, ref, zipCode),
                   child: Row(
@@ -139,14 +151,28 @@ class HomeScreen extends ConsumerWidget {
               ),
             ],
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(50),
-              child: _CategoryFilter(
-                categories: _categories,
-                selected: selectedCategory ?? 'Alle',
-                onSelect: (cat) {
-                  ref.read(selectedCategoryProvider.notifier).state =
-                      cat == 'Alle' ? null : cat;
-                },
+              preferredSize: const Size.fromHeight(104),
+              child: Column(
+                children: [
+                  // 상품 카테고리 필터
+                  _CategoryFilter(
+                    categories: _categories,
+                    selected: selectedCategory ?? 'Alle',
+                    onSelect: (cat) {
+                      ref.read(selectedCategoryProvider.notifier).state =
+                          cat == 'Alle' ? null : cat;
+                    },
+                  ),
+                  // 슈퍼마켓 필터
+                  _SupermarketFilter(
+                    supermarkets: _supermarkets,
+                    selected: selectedSupermarket ?? 'Alle',
+                    onSelect: (market) {
+                      ref.read(selectedSupermarketProvider.notifier).state =
+                          market == 'Alle' ? null : market;
+                    },
+                  ),
+                ],
               ),
             ),
           ),
@@ -160,9 +186,11 @@ class HomeScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
                 child: Row(
                   children: [
-                    const Text(
-                      'Diese Woche im Angebot',
-                      style: TextStyle(
+                    Text(
+                      selectedSupermarket != null
+                          ? '$selectedSupermarket Angebote'
+                          : 'Diese Woche im Angebot',
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary,
@@ -291,6 +319,58 @@ class _CategoryFilter extends StatelessWidget {
                   isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
             backgroundColor: Colors.white.withValues(alpha: 0.2),
+            showCheckmark: false,
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SupermarketFilter extends StatelessWidget {
+  final List<String> supermarkets;
+  final String selected;
+  final ValueChanged<String> onSelect;
+
+  const _SupermarketFilter({
+    required this.supermarkets,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 46,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        itemCount: supermarkets.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final market = supermarkets[index];
+          final isSelected = market == selected;
+          final info = market == 'Alle'
+              ? null
+              : SupermarketConstants.getInfo(market);
+          final selectedColor = info != null
+              ? Color(info.color)
+              : AppTheme.primaryGreen;
+
+          return FilterChip(
+            label: Text(
+              info != null ? '${info.emoji} $market' : market,
+            ),
+            selected: isSelected,
+            onSelected: (_) => onSelect(market),
+            selectedColor: selectedColor,
+            labelStyle: TextStyle(
+              color: isSelected ? Colors.white : AppTheme.textPrimary,
+              fontSize: 12,
+              fontWeight:
+                  isSelected ? FontWeight.w600 : FontWeight.normal,
+            ),
+            backgroundColor: Colors.white.withValues(alpha: 0.15),
             showCheckmark: false,
           );
         },

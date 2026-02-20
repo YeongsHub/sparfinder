@@ -18,15 +18,29 @@ class HomeOffer {
 // 선택된 카테고리 필터
 final selectedCategoryProvider = StateProvider<String?>((ref) => null);
 
+// 선택된 슈퍼마켓 필터
+final selectedSupermarketProvider = StateProvider<String?>((ref) => null);
+
 // 홈 화면 주간 세일 데이터 (중복 제거 후 최저가만)
 final weeklyDealsProvider =
     FutureProvider.autoDispose<List<HomeOffer>>((ref) async {
   final zipCode = ref.watch(zipCodeProvider);
   final category = ref.watch(selectedCategoryProvider);
+  final supermarket = ref.watch(selectedSupermarketProvider);
   final useCase = ref.watch(getWeeklyDealsUseCaseProvider);
 
   final allOffers = await useCase(zipCode: zipCode, category: category);
-  return _deduplicateCheapest(allOffers);
+
+  // 슈퍼마켓 필터 적용
+  final filtered = supermarket != null
+      ? allOffers
+          .where((o) => o.supermarketName
+              .toLowerCase()
+              .contains(supermarket.toLowerCase()))
+          .toList()
+      : allOffers;
+
+  return _deduplicateCheapest(filtered);
 });
 
 /// 같은 제품명 그룹화 → 최저가 하나만 남기고 storeCount 기록
