@@ -22,17 +22,6 @@ class HomeScreen extends ConsumerWidget {
     'Frühstück',
   ];
 
-  static const _supermarkets = [
-    'Alle',
-    'ALDI',
-    'LIDL',
-    'REWE',
-    'Kaufland',
-    'Penny',
-    'Netto',
-    'EDEKA',
-  ];
-
   void _showZipDialog(BuildContext context, WidgetRef ref, String currentZip) {
     final controller = TextEditingController(text: currentZip);
     showDialog(
@@ -151,7 +140,7 @@ class HomeScreen extends ConsumerWidget {
               ),
             ],
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(104),
+              preferredSize: const Size.fromHeight(120),
               child: Column(
                 children: [
                   // 상품 카테고리 필터
@@ -163,14 +152,18 @@ class HomeScreen extends ConsumerWidget {
                           cat == 'Alle' ? null : cat;
                     },
                   ),
-                  // 슈퍼마켓 필터
-                  _SupermarketFilter(
-                    supermarkets: _supermarkets,
-                    selected: selectedSupermarket ?? 'Alle',
-                    onSelect: (market) {
-                      ref.read(selectedSupermarketProvider.notifier).state =
-                          market == 'Alle' ? null : market;
-                    },
+                  // 슈퍼마켓 필터 (실제 데이터 기반 동적 목록)
+                  ref.watch(availableSupermarketsProvider).when(
+                    loading: () => const SizedBox(height: 46),
+                    error: (e, s) => const SizedBox(height: 46),
+                    data: (markets) => _SupermarketFilter(
+                      supermarkets: markets,
+                      selected: selectedSupermarket ?? 'Alle',
+                      onSelect: (market) {
+                        ref.read(selectedSupermarketProvider.notifier).state =
+                            market == 'Alle' ? null : market;
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -269,7 +262,7 @@ class HomeScreen extends ConsumerWidget {
                   gridDelegate:
                       const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.70,
+                    childAspectRatio: 0.57,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                   ),

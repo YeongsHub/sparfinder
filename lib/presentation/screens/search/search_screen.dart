@@ -214,7 +214,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
         // 결과 헤더
         Text(
-          '${offers.length} Angebote für "${ref.watch(searchQueryProvider)}"',
+          '${offers.length} Märkte haben "${ref.watch(searchQueryProvider)}" im Angebot',
           style: const TextStyle(
             fontSize: 14,
             color: AppTheme.textSecondary,

@@ -6,6 +6,18 @@ class SupermarketConstants {
       color: 0xFF005DA8,
       emoji: '🔵',
     ),
+    'aldisüd': SupermarketInfo(
+      id: 'aldisüd',
+      name: 'ALDI Süd',
+      color: 0xFF005DA8,
+      emoji: '🔵',
+    ),
+    'aldinord': SupermarketInfo(
+      id: 'aldinord',
+      name: 'ALDI Nord',
+      color: 0xFF003F7A,
+      emoji: '🔵',
+    ),
     'lidl': SupermarketInfo(
       id: 'lidl',
       name: 'LIDL',
@@ -42,19 +54,20 @@ class SupermarketConstants {
       color: 0xFF005E3C,
       emoji: '💚',
     ),
-    'dm': SupermarketInfo(
-      id: 'dm',
-      name: 'dm',
-      color: 0xFF003C78,
-      emoji: '💊',
-    ),
-    'rossmann': SupermarketInfo(
-      id: 'rossmann',
-      name: 'Rossmann',
-      color: 0xFFDD0000,
-      emoji: '🏥',
+    'tegut': SupermarketInfo(
+      id: 'tegut',
+      name: 'tegut',
+      color: 0xFFE8500A,
+      emoji: '🟠',
     ),
   };
+
+  /// API 결과에서 슈퍼마켓 여부 판별
+  /// 'ALDI Süd', 'REWE City', 'Netto Marken-Discount' 등 변형도 포함
+  static bool isKnownSupermarket(String name) {
+    final key = name.toLowerCase().replaceAll(' ', '');
+    return supermarkets.keys.any((k) => key.contains(k));
+  }
 
   static SupermarketInfo getInfo(String name) {
     final key = name.toLowerCase().replaceAll(' ', '');

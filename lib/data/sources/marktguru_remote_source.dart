@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../models/offer_model.dart';
 import '../../core/constants/api_constants.dart';
+import '../../core/constants/supermarket_constants.dart';
 
 class MarktguruRemoteSource {
   final Dio _dio;
@@ -32,7 +33,7 @@ class MarktguruRemoteSource {
       final results = data?['results'] as List<dynamic>? ?? [];
       return results
           .map((e) => OfferModel.fromMarktguru(e as Map<String, dynamic>))
-          .where((o) => o.price > 0)
+          .where((o) => o.price > 0 && SupermarketConstants.isKnownSupermarket(o.supermarketName))
           .toList();
     } on DioException catch (e) {
       // API 실패 시 Mock 폴백
@@ -41,23 +42,41 @@ class MarktguruRemoteSource {
     }
   }
 
-  /// 주간 세일 전체 — 여러 키워드로 검색해 합산
-  /// (marktguru는 list 엔드포인트가 없어서 키워드 검색으로 대체)
+  /// 주간 세일 전체 — 35개 카테고리 키워드 병렬 검색으로 최대한 많은 제품 수집
+  /// (marktguru에 /list 엔드포인트 없음 → 키워드 검색 합산으로 대체)
   Future<List<OfferModel>> getWeeklyDeals({
     required String zipCode,
     String? category,
   }) async {
-    // 주요 카테고리 키워드로 병렬 검색
+    // 카테고리 지정 시 해당 키워드만, 없으면 전체 35개 카테고리 키워드
     final keywords = category != null
         ? [category]
-        : ['Milch', 'Butter', 'Fleisch', 'Obst', 'Gemüse', 'Brot',
-           'Käse', 'Eier', 'Getränke', 'Fisch'];
+        : [
+            // 유제품
+            'Milch', 'Butter', 'Käse', 'Joghurt', 'Sahne', 'Quark',
+            // 육류 & 가공육
+            'Fleisch', 'Hähnchen', 'Rind', 'Schwein', 'Wurst', 'Schinken',
+            // 수산물
+            'Fisch', 'Lachs', 'Thunfisch',
+            // 채소 & 과일
+            'Gemüse', 'Obst', 'Salat', 'Kartoffel', 'Tomate', 'Paprika',
+            // 빵 & 제과
+            'Brot', 'Brötchen', 'Kuchen',
+            // 음료
+            'Getränke', 'Bier', 'Wein', 'Saft', 'Wasser',
+            // 냉동식품
+            'Tiefkühl',
+            // 과자 & 간식
+            'Schokolade', 'Chips',
+            // 기타 식품
+            'Eier', 'Kaffee', 'Nudeln',
+          ];
 
     try {
       final futures = keywords.map((kw) => searchOffers(
             query: kw,
             zipCode: zipCode,
-            limit: 20,
+            limit: 50,
           ));
       final results = await Future.wait(futures);
 

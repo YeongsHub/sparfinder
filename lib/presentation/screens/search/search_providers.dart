@@ -4,6 +4,7 @@ import '../../../core/providers/app_providers.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
+/// 슈퍼마켓별 최저가 결과 — 각 슈퍼마켓당 가장 저렴한 offer 하나씩
 final searchResultsProvider =
     FutureProvider.autoDispose<List<Offer>>((ref) async {
   final query = ref.watch(searchQueryProvider);
@@ -14,7 +15,18 @@ final searchResultsProvider =
   final useCase = ref.watch(searchOffersUseCaseProvider);
   final results = await useCase(query: query, zipCode: zipCode);
 
+  // 슈퍼마켓별 그룹화 → 각 슈퍼마켓의 최저가만 남김
+  final Map<String, Offer> cheapestPerMarket = {};
+  for (final offer in results) {
+    final market = offer.supermarketName.toLowerCase();
+    final existing = cheapestPerMarket[market];
+    if (existing == null || offer.price < existing.price) {
+      cheapestPerMarket[market] = offer;
+    }
+  }
+
   // 가격 오름차순 정렬
-  results.sort((a, b) => a.price.compareTo(b.price));
-  return results;
+  final grouped = cheapestPerMarket.values.toList()
+    ..sort((a, b) => a.price.compareTo(b.price));
+  return grouped;
 });
