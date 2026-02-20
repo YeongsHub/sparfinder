@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/offer.dart';
@@ -31,10 +32,14 @@ class ProductDetailScreen extends ConsumerWidget {
             backgroundColor: AppTheme.primaryGreen,
             flexibleSpace: FlexibleSpaceBar(
               background: offer.imageUrl != null
-                  ? Image.network(
-                      offer.imageUrl!,
+                  ? CachedNetworkImage(
+                      imageUrl: offer.imageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => _imagePlaceholder(),
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[200],
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                      errorWidget: (context, url, error) => _imagePlaceholder(),
                     )
                   : _imagePlaceholder(),
             ),

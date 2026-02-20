@@ -29,55 +29,75 @@ class OfferModel {
     this.description,
   });
 
-  /// marktguru API JSON 응답 파싱
+  /// 실제 marktguru API v1 응답 구조 파싱
+  /// 응답 예시:
+  /// id, price, oldPrice, volume, brand.name, advertisers[0].name,
+  /// categories[0].name, product.name, unit.shortName,
+  /// validityDates[0].{from,to}, description
   factory OfferModel.fromMarktguru(Map<String, dynamic> json) {
-    // API 응답 구조에 맞게 파싱
-    final priceInfo = json['price'] as Map<String, dynamic>?;
-    final retailer = json['retailer'] as Map<String, dynamic>?;
+    // 가격
+    final price = (json['price'] as num?)?.toDouble() ?? 0;
+    final oldPrice = (json['oldPrice'] as num?)?.toDouble();
+    final originalPrice = (oldPrice != null && oldPrice > price) ? oldPrice : null;
+
+    // 슈퍼마켓 이름 (advertisers 배열 첫 번째)
+    final advertisers = json['advertisers'] as List<dynamic>?;
+    final supermarket = advertisers?.isNotEmpty == true
+        ? (advertisers!.first as Map<String, dynamic>)['name'] as String? ?? 'Unbekannt'
+        : 'Unbekannt';
+
+    // 브랜드
+    final brand = (json['brand'] as Map<String, dynamic>?)?['name'] as String?;
+
+    // 카테고리
+    final categories = json['categories'] as List<dynamic>?;
+    final category = categories?.isNotEmpty == true
+        ? (categories!.first as Map<String, dynamic>)['name'] as String?
+        : null;
+
+    // 상품명: product.name 우선, 없으면 description 사용
     final product = json['product'] as Map<String, dynamic>?;
-    final validityData = json['validity'] as Map<String, dynamic>?;
+    final productName = product?['name'] as String? ??
+        json['description'] as String? ?? '';
 
-    double price = 0;
-    double? originalPrice;
-
-    if (priceInfo != null) {
-      price = (priceInfo['value'] as num?)?.toDouble() ?? 0;
-      final regularPrice = priceInfo['regularValue'] as num?;
-      if (regularPrice != null && regularPrice.toDouble() > price) {
-        originalPrice = regularPrice.toDouble();
-      }
+    // 단위: volume + unit.shortName 조합 (예: "250 g", "1 l")
+    final volume = json['volume'] as num?;
+    final unitMap = json['unit'] as Map<String, dynamic>?;
+    final unitShort = unitMap?['shortName'] as String?;
+    String? unit;
+    if (volume != null && unitShort != null) {
+      final vol = volume == volume.toInt() ? volume.toInt() : volume;
+      unit = '$vol $unitShort';
     }
 
-    // 이미지 URL 추출
-    String? imageUrl;
-    final images = json['images'] as List<dynamic>?;
-    if (images != null && images.isNotEmpty) {
-      final firstImage = images.first as Map<String, dynamic>?;
-      imageUrl = firstImage?['url'] as String?;
-    }
-
-    // 유효기간 파싱
+    // 유효기간 (validityDates 배열 첫 번째)
     DateTime? validFrom;
     DateTime? validUntil;
-    if (validityData != null) {
-      final fromStr = validityData['from'] as String?;
-      final toStr = validityData['to'] as String?;
-      if (fromStr != null) validFrom = DateTime.tryParse(fromStr);
-      if (toStr != null) validUntil = DateTime.tryParse(toStr);
+    final validityDates = json['validityDates'] as List<dynamic>?;
+    if (validityDates?.isNotEmpty == true) {
+      final first = validityDates!.first as Map<String, dynamic>;
+      final fromStr = first['from'] as String?;
+      final toStr = first['to'] as String?;
+      if (fromStr != null) validFrom = DateTime.tryParse(fromStr)?.toLocal();
+      if (toStr != null) validUntil = DateTime.tryParse(toStr)?.toLocal();
     }
 
+    final offerId = json['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
+    // CDN 패턴: https://mg2de.b-cdn.net/api/v1/offers/{id}/images/default/0/medium.webp
+    final imageUrl = 'https://mg2de.b-cdn.net/api/v1/offers/$offerId/images/default/0/medium.webp';
+
     return OfferModel(
-      id: json['id']?.toString() ?? UniqueKey().toString(),
-      productName: json['name'] as String? ?? '',
-      brand: product?['brand'] as String?,
+      id: offerId,
+      productName: productName,
+      brand: brand,
       price: price,
       originalPrice: originalPrice,
-      supermarketName: retailer?['name'] as String? ?? 'Unknown',
+      supermarketName: supermarket,
       imageUrl: imageUrl,
-      category: json['category'] as String?,
+      category: category,
       validFrom: validFrom,
       validUntil: validUntil,
-      unit: json['quantity'] as String?,
+      unit: unit,
       description: json['description'] as String?,
     );
   }

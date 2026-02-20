@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/offer.dart';
 import '../../core/utils/price_formatter.dart';
@@ -211,12 +212,24 @@ class OfferCard extends StatelessWidget {
   Widget _buildImage() {
     final imageUrl = offer.imageUrl;
     if (imageUrl != null && imageUrl.isNotEmpty) {
-      return Image.network(
-        imageUrl,
+      return CachedNetworkImage(
+        imageUrl: imageUrl,
         height: 100,
         width: double.infinity,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _placeholder(),
+        placeholder: (context, url) => Container(
+          height: 100,
+          width: double.infinity,
+          color: Colors.grey[100],
+          child: const Center(
+            child: SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+        ),
+        errorWidget: (context, url, error) => _placeholder(),
       );
     }
     return _placeholder();

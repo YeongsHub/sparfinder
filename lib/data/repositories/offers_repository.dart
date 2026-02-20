@@ -34,7 +34,6 @@ class OffersRepositoryImpl implements OffersRepository {
     final models = await _remoteSource.searchOffers(
       query: query,
       zipCode: zipCode,
-      retailers: retailers,
     );
     return models.map((m) => m.toDomain()).toList();
   }
